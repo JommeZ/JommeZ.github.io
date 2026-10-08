@@ -1,0 +1,86 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ProjectCard from '../components/ProjectCard.astro';
+import { projects } from '../data/projects';
+import { getCollection } from 'astro:content';
+
+const featuredProjects = projects.slice(0, 3);
+
+const allPosts = await getCollection('blog', ({ data }) => !data.draft);
+const latestPosts = allPosts
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
+  .slice(0, 3);
+---
+
+<BaseLayout title="Home">
+  <section class="intro">
+    <h1>Hi, I'm Jomme.</h1>
+    <p>
+      This is my personal home base &mdash; a mix of projects, notes, and demos,
+      including things I build together with Claude.
+    </p>
+  </section>
+
+  <section>
+    <div class="section-header">
+      <h2>Projects</h2>
+      <a href="/projects/">See all &rarr;</a>
+    </div>
+    <div class="project-grid">
+      {featuredProjects.map((project) => (
+        <ProjectCard project={project} />
+      ))}
+    </div>
+  </section>
+
+  <section>
+    <div class="section-header">
+      <h2>Latest posts</h2>
+      <a href="/blog/">See all &rarr;</a>
+    </div>
+    <ul class="post-list">
+      {latestPosts.map((post) => (
+        <li>
+          <a href={`/blog/${post.id}/`}>{post.data.title}</a>
+        </li>
+      ))}
+    </ul>
+  </section>
+</BaseLayout>
+
+<style>
+  .intro {
+    padding-block: 2rem;
+  }
+
+  section {
+    margin-bottom: 2.5rem;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+  }
+
+  .project-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 1rem;
+  }
+
+  .post-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .post-list li {
+    margin-bottom: 0.5rem;
+  }
+
+  .post-list a {
+    font-weight: 600;
+  }
+</style>

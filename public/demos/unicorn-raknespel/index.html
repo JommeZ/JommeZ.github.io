@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Enhörningens Räknespel 🦄</title>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --pink: #ff85c2;
+      --purple: #c77dff;
+      --light-purple: #e0aaff;
+      --lavender: #f3e8ff;
+      --gold: #ffd700;
+      --green: #6bcb77;
+      --red: #ff6b6b;
+      --white: #fff;
+      --shadow: rgba(150, 80, 200, 0.25);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Baloo 2', cursive;
+      background: linear-gradient(135deg, #fce4ff 0%, #e8d5ff 40%, #ffd6f5 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* ── SCREENS ── */
+    .screen {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      max-width: 480px;
+      padding: 20px;
+    }
+    .screen.active { display: flex; }
+
+    /* ── START SCREEN ── */
+    #start-screen {
+      text-align: center;
+      gap: 18px;
+    }
+
+    .title-emoji { font-size: 72px; animation: float 3s ease-in-out infinite; }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-12px); }
+    }
+
+    h1 {
+      font-size: 2.4rem;
+      font-weight: 800;
+      color: var(--purple);
+      text-shadow: 2px 2px 0 var(--pink);
+      line-height: 1.2;
+    }
+
+    .subtitle {
+      font-size: 1.1rem;
+      color: #a05cc9;
+      font-weight: 600;
+    }
+
+    .btn-start {
+      margin-top: 10px;
+      font-family: 'Baloo 2', cursive;
+      font-size: 1.6rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--pink), var(--purple));
+      color: white;
+      border: none;
+      border-radius: 50px;
+      padding: 16px 52px;
+      cursor: pointer;
+      box-shadow: 0 6px 20px var(--shadow);
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .btn-start:hover { transform: scale(1.06); box-shadow: 0 8px 28px var(--shadow); }
+    .btn-start:active { transform: scale(0.97); }
+
+    /* ── GAME SCREEN ── */
+    #game-screen { gap: 14px; }
+
+    #controls {
+      display: flex;
+      gap: 10px;
+      width: 100%;
+      justify-content: flex-end;
+    }
+
+    .btn-ctrl {
+      font-family: 'Baloo 2', cursive;
+      font-size: 0.95rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 30px;
+      padding: 8px 20px;
+      cursor: pointer;
+      transition: transform 0.12s, opacity 0.12s;
+    }
+    .btn-ctrl:hover { transform: scale(1.07); }
+    .btn-ctrl:active { transform: scale(0.95); }
+
+    #btn-pause {
+      background: var(--light-purple);
+      color: #6a1b9a;
+    }
+    #btn-restart {
+      background: #ffd6f5;
+      color: #b0006d;
+    }
+
+    #hearts {
+      font-size: 1.6rem;
+      letter-spacing: 3px;
+      min-height: 36px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2px;
+      justify-content: center;
+    }
+
+    #level-badge {
+      background: linear-gradient(135deg, var(--gold), #ffb300);
+      color: #5a3800;
+      font-size: 0.9rem;
+      font-weight: 800;
+      padding: 5px 18px;
+      border-radius: 30px;
+      box-shadow: 0 3px 10px rgba(255,180,0,0.4);
+      letter-spacing: 1px;
+    }
+
+    #task {
+      font-size: 3.2rem;
+      font-weight: 800;
+      color: #7b2fff;
+      background: white;
+      border-radius: 24px;
+      padding: 16px 40px;
+      box-shadow: 0 4px 18px var(--shadow);
+      letter-spacing: 4px;
+    }
+
+    #visual-aid {
+      display: flex;
+      gap: 18px;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      justify-content: center;
+      min-height: 60px;
+      width: 100%;
+    }
+
+    .visual-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      max-width: 190px;
+      justify-content: center;
+      background: rgba(255,255,255,0.55);
+      border-radius: 16px;
+      padding: 10px 14px;
+      box-shadow: 0 2px 10px var(--shadow);
+    }
+
+    .visual-icon {
+      font-size: 1.9rem;
+      line-height: 1;
+    }
+
+    .visual-plus {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--purple);
+      align-self: center;
+    }
+
+    #answer-display {
+      font-size: 2.6rem;
+      font-weight: 800;
+      color: #5a0080;
+      background: white;
+      border: 3px solid var(--light-purple);
+      border-radius: 18px;
+      padding: 10px 36px;
+      min-width: 120px;
+      text-align: center;
+      min-height: 62px;
+      box-shadow: 0 3px 12px var(--shadow);
+      transition: border-color 0.2s, background 0.2s;
+    }
+    #answer-display.wrong {
+      border-color: var(--red);
+      background: #ffe0e0;
+      animation: shake 0.4s ease;
+    }
+    #answer-display.correct {
+      border-color: var(--green);
+      background: #e8ffec;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20% { transform: translateX(-8px); }
+      40% { transform: translateX(8px); }
+      60% { transform: translateX(-6px); }
+      80% { transform: translateX(6px); }
+    }
+
+    #number-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+      width: 100%;
+    }
+
+    .num-btn {
+      font-family: 'Baloo 2', cursive;
+      font-size: 1.7rem;
+      font-weight: 700;
+      background: white;
+      color: #7b2fff;
+      border: 2px solid var(--light-purple);
+      border-radius: 16px;
+      padding: 12px 0;
+      cursor: pointer;
+      box-shadow: 0 3px 8px var(--shadow);
+      transition: transform 0.12s, background 0.12s, box-shadow 0.12s;
+      user-select: none;
+    }
+    .num-btn:hover {
+      background: var(--lavender);
+      transform: scale(1.09);
+      box-shadow: 0 5px 14px var(--shadow);
+    }
+    .num-btn:active { transform: scale(0.94); }
+
+    .btn-delete {
+      font-size: 1.4rem;
+      background: #ffe4f5;
+      color: #b0006d;
+      border-color: var(--pink);
+    }
+    .btn-delete:hover { background: #ffc8e8; }
+
+    /* ── PAUSE OVERLAY ── */
+    #pause-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(100, 30, 160, 0.55);
+      backdrop-filter: blur(4px);
+      z-index: 100;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+    }
+    #pause-overlay.active { display: flex; }
+
+    #pause-overlay h2 {
+      font-size: 3rem;
+      color: white;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.4);
+    }
+
+    .btn-resume {
+      font-family: 'Baloo 2', cursive;
+      font-size: 1.5rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--gold), #ffb300);
+      color: #5a3800;
+      border: none;
+      border-radius: 50px;
+      padding: 14px 46px;
+      cursor: pointer;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+      transition: transform 0.15s;
+    }
+    .btn-resume:hover { transform: scale(1.08); }
+
+    /* ── LEVEL UP BANNER ── */
+    #levelup-banner {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0.5);
+      z-index: 200;
+      background: linear-gradient(135deg, var(--pink), var(--purple));
+      color: white;
+      font-size: 2rem;
+      font-weight: 800;
+      padding: 24px 50px;
+      border-radius: 28px;
+      box-shadow: 0 8px 40px rgba(150,0,255,0.5);
+      text-align: center;
+      opacity: 0;
+      transition: transform 0.4s cubic-bezier(.17,.67,.45,1.4), opacity 0.3s;
+      pointer-events: none;
+    }
+    #levelup-banner.show {
+      display: block;
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+    }
+
+    /* ── CONFETTI CANVAS ── */
+    #confetti-canvas {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 150;
+    }
+
+    /* ── FLOATING STARS decoration ── */
+    .star-deco {
+      position: fixed;
+      font-size: 1.4rem;
+      opacity: 0.18;
+      pointer-events: none;
+      animation: twinkle 4s ease-in-out infinite;
+    }
+    @keyframes twinkle {
+      0%, 100% { opacity: 0.18; transform: scale(1) rotate(0deg); }
+      50% { opacity: 0.38; transform: scale(1.2) rotate(15deg); }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Decorative background stars -->
+<span class="star-deco" style="top:8%;left:5%;animation-delay:0s">✨</span>
+<span class="star-deco" style="top:15%;right:8%;animation-delay:1s">⭐</span>
+<span class="star-deco" style="bottom:12%;left:10%;animation-delay:2s">💫</span>
+<span class="star-deco" style="bottom:20%;right:6%;animation-delay:0.5s">✨</span>
+<span class="star-deco" style="top:50%;left:2%;animation-delay:1.5s">⭐</span>
+<span class="star-deco" style="top:40%;right:3%;animation-delay:2.5s">💫</span>
+
+<!-- ── START SCREEN ── -->
+<div id="start-screen" class="screen active">
+  <div class="title-emoji">🦄</div>
+  <h1>Enhörningens<br>Räknespel</h1>
+  <p class="subtitle">Lär dig addition med magi! ✨</p>
+  <button class="btn-start" onclick="startGame()">Starta spelet 🌟</button>
+</div>
+
+<!-- ── GAME SCREEN ── -->
+<div id="game-screen" class="screen">
+  <div id="controls">
+    <button class="btn-ctrl" id="btn-pause" onclick="togglePause()">⏸ Paus</button>
+    <button class="btn-ctrl" id="btn-restart" onclick="restartGame()">🔄 Börja om</button>
+  </div>
+
+  <div id="hearts"></div>
+  <div id="level-badge">Nivå 1 ⭐</div>
+
+  <div id="task">? + ? = ?</div>
+
+  <div id="visual-aid"></div>
+
+  <div id="answer-display">_</div>
+
+  <div id="number-grid"></div>
+</div>
+
+<!-- ── PAUSE OVERLAY ── -->
+<div id="pause-overlay">
+  <h2>⏸ Paus</h2>
+  <button class="btn-resume" onclick="togglePause()">▶ Fortsätt</button>
+</div>
+
+<!-- ── LEVEL UP BANNER ── -->
+<div id="levelup-banner"></div>
+
+<!-- ── CONFETTI CANVAS ── -->
+<canvas id="confetti-canvas"></canvas>
+
+<script>
+// ─────────────────────────────────────────────
+// GAME STATE
+// ─────────────────────────────────────────────
+const gameState = {
+  level: 1,
+  score: 0,
+  correctInLevel: 0,
+  currentA: 0,
+  currentB: 0,
+  currentAnswer: '',
+  paused: false,
+  waiting: false, // waiting between questions
+};
+
+const LEVELS = [
+  null, // index 0 unused
+  { maxNum: 3, maxSum: 5,  toAdvance: 5 },
+  { maxNum: 5, maxSum: 8,  toAdvance: 5 },
+  { maxNum: 9, maxSum: 15, toAdvance: Infinity },
+];
+
+// ─────────────────────────────────────────────
+// SCREEN MANAGEMENT
+// ─────────────────────────────────────────────
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+// ─────────────────────────────────────────────
+// START / RESTART
+// ─────────────────────────────────────────────
+function startGame() {
+  gameState.level = 1;
+  gameState.score = 0;
+  gameState.correctInLevel = 0;
+  gameState.paused = false;
+  gameState.waiting = false;
+  gameState.currentAnswer = '';
+  showScreen('game-screen');
+  buildNumberGrid();
+  generateTask();
+  renderHearts();
+  renderLevelBadge();
+}
+
+function restartGame() {
+  document.getElementById('pause-overlay').classList.remove('active');
+  showScreen('start-screen');
+}
+
+// ─────────────────────────────────────────────
+// TASK GENERATION
+// ─────────────────────────────────────────────
+function generateTask() {
+  const cfg = LEVELS[gameState.level];
+  let a, b;
+  do {
+    a = Math.floor(Math.random() * cfg.maxNum) + 1;
+    b = Math.floor(Math.random() * cfg.maxNum) + 1;
+  } while (a + b > cfg.maxSum);
+  gameState.currentA = a;
+  gameState.currentB = b;
+  gameState.currentAnswer = '';
+
+  document.getElementById('task').textContent = `${a} + ${b} = ?`;
+  renderVisualAid(a, b);
+  renderAnswerDisplay();
+  resetAnswerStyle();
+}
+
+// ─────────────────────────────────────────────
+// VISUAL AID
+// ─────────────────────────────────────────────
+function renderVisualAid(a, b) {
+  const el = document.getElementById('visual-aid');
+  el.innerHTML = '';
+
+  el.appendChild(makeGroup(a, '🦄'));
+  const plus = document.createElement('span');
+  plus.className = 'visual-plus';
+  plus.textContent = '+';
+  el.appendChild(plus);
+  el.appendChild(makeGroup(b, '⭐'));
+}
+
+function makeGroup(count, emoji) {
+  const div = document.createElement('div');
+  div.className = 'visual-group';
+  for (let i = 0; i < count; i++) {
+    const span = document.createElement('span');
+    span.className = 'visual-icon';
+    span.textContent = emoji;
+    div.appendChild(span);
+  }
+  return div;
+}
+
+// ─────────────────────────────────────────────
+// ANSWER DISPLAY
+// ─────────────────────────────────────────────
+function renderAnswerDisplay() {
+  const el = document.getElementById('answer-display');
+  el.textContent = gameState.currentAnswer === '' ? '_' : gameState.currentAnswer;
+}
+
+function resetAnswerStyle() {
+  const el = document.getElementById('answer-display');
+  el.classList.remove('wrong', 'correct');
+}
+
+// ─────────────────────────────────────────────
+// NUMBER GRID
+// ─────────────────────────────────────────────
+function buildNumberGrid() {
+  const grid = document.getElementById('number-grid');
+  grid.innerHTML = '';
+  // Row 1: 1-5, Row 2: 6-9, 0, delete
+  const nums = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0];
+  nums.forEach(n => {
+    const btn = document.createElement('button');
+    btn.className = 'num-btn';
+    btn.textContent = n;
+    btn.onclick = () => handleDigit(String(n));
+    grid.appendChild(btn);
+  });
+  const del = document.createElement('button');
+  del.className = 'num-btn btn-delete';
+  del.textContent = '⌫';
+  del.onclick = handleDelete;
+  grid.appendChild(del);
+}
+
+// ─────────────────────────────────────────────
+// INPUT HANDLING
+// ─────────────────────────────────────────────
+function handleDigit(d) {
+  if (gameState.paused || gameState.waiting) return;
+  const maxDigits = 2;
+  if (gameState.currentAnswer.length >= maxDigits) return;
+  gameState.currentAnswer += d;
+  renderAnswerDisplay();
+  // Auto-check: if answer can't get bigger (correct target is single digit,
+  // or user entered 2 digits), check immediately
+  const target = gameState.currentA + gameState.currentB;
+  const entered = parseInt(gameState.currentAnswer, 10);
+  if (target < 10 || gameState.currentAnswer.length === 2) {
+    handleAnswer();
+  }
+}
+
+function handleDelete() {
+  if (gameState.paused || gameState.waiting) return;
+  gameState.currentAnswer = gameState.currentAnswer.slice(0, -1);
+  renderAnswerDisplay();
+  resetAnswerStyle();
+}
+
+// ─────────────────────────────────────────────
+// ANSWER CHECKING
+// ─────────────────────────────────────────────
+function handleAnswer() {
+  if (gameState.waiting) return;
+  const target = gameState.currentA + gameState.currentB;
+  const entered = parseInt(gameState.currentAnswer, 10);
+
+  if (entered === target) {
+    correctAnswer();
+  } else {
+    wrongAnswer();
+  }
+}
+
+function correctAnswer() {
+  gameState.waiting = true;
+  gameState.score++;
+  gameState.correctInLevel++;
+
+  const el = document.getElementById('answer-display');
+  el.classList.add('correct');
+
+  renderHearts();
+  launchConfetti();
+
+  const cfg = LEVELS[gameState.level];
+  if (gameState.correctInLevel >= cfg.toAdvance && gameState.level < 3) {
+    setTimeout(() => {
+      levelUp();
+    }, 900);
+  } else {
+    setTimeout(() => {
+      gameState.waiting = false;
+      generateTask();
+    }, 1100);
+  }
+}
+
+function wrongAnswer() {
+  const el = document.getElementById('answer-display');
+  el.classList.add('wrong');
+  gameState.currentAnswer = '';
+  setTimeout(() => {
+    el.classList.remove('wrong');
+    renderAnswerDisplay();
+  }, 700);
+}
+
+// ─────────────────────────────────────────────
+// HEARTS
+// ─────────────────────────────────────────────
+function renderHearts() {
+  const el = document.getElementById('hearts');
+  const count = Math.min(gameState.score, 10);
+  el.innerHTML = '';
+  for (let i = 0; i < count; i++) {
+    const s = document.createElement('span');
+    s.textContent = '❤️';
+    if (i === count - 1 && gameState.score > 0) {
+      s.style.animation = 'float 0.5s ease';
+    }
+    el.appendChild(s);
+  }
+  if (gameState.score >= 10) {
+    const extra = document.createElement('span');
+    extra.textContent = ' 🌟';
+    extra.style.fontSize = '1.4rem';
+    el.appendChild(extra);
+  }
+}
+
+// ─────────────────────────────────────────────
+// LEVEL BADGE
+// ─────────────────────────────────────────────
+function renderLevelBadge() {
+  const stars = '⭐'.repeat(gameState.level);
+  document.getElementById('level-badge').textContent = `Nivå ${gameState.level} ${stars}`;
+}
+
+// ─────────────────────────────────────────────
+// LEVEL UP
+// ─────────────────────────────────────────────
+function levelUp() {
+  gameState.level++;
+  gameState.correctInLevel = 0;
+  renderLevelBadge();
+
+  const banner = document.getElementById('levelup-banner');
+  banner.innerHTML = `🎉 Nivå ${gameState.level}! 🎉<br><span style="font-size:1.3rem">Du är jätteduktig!</span>`;
+  banner.style.display = 'block';
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      banner.classList.add('show');
+    });
+  });
+
+  setTimeout(() => {
+    banner.classList.remove('show');
+    setTimeout(() => {
+      banner.style.display = 'none';
+      gameState.waiting = false;
+      generateTask();
+    }, 400);
+  }, 2000);
+}
+
+// ─────────────────────────────────────────────
+// PAUSE
+// ─────────────────────────────────────────────
+function togglePause() {
+  gameState.paused = !gameState.paused;
+  const overlay = document.getElementById('pause-overlay');
+  const btn = document.getElementById('btn-pause');
+  if (gameState.paused) {
+    overlay.classList.add('active');
+    btn.textContent = '▶ Fortsätt';
+  } else {
+    overlay.classList.remove('active');
+    btn.textContent = '⏸ Paus';
+  }
+}
+
+// ─────────────────────────────────────────────
+// CONFETTI
+// ─────────────────────────────────────────────
+const canvas = document.getElementById('confetti-canvas');
+const ctx = canvas.getContext('2d');
+let confettiParticles = [];
+let confettiAnimId = null;
+
+function resizeCanvas() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
+
+function launchConfetti() {
+  confettiParticles = [];
+  const colors = ['#ff85c2', '#c77dff', '#ffd700', '#6bcb77', '#ff6b6b', '#a0e8ff'];
+  for (let i = 0; i < 90; i++) {
+    confettiParticles.push({
+      x: Math.random() * canvas.width,
+      y: -10 - Math.random() * 80,
+      r: 4 + Math.random() * 6,
+      d: Math.random() * 8 + 2,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      tilt: Math.random() * 10 - 5,
+      tiltSpeed: 0.08 + Math.random() * 0.1,
+      angle: 0,
+    });
+  }
+  if (confettiAnimId) cancelAnimationFrame(confettiAnimId);
+  let elapsed = 0;
+  const duration = 2200;
+  const start = performance.now();
+
+  function draw(now) {
+    elapsed = now - start;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    confettiParticles.forEach(p => {
+      ctx.beginPath();
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.angle);
+      ctx.fillStyle = p.color;
+      ctx.globalAlpha = Math.max(0, 1 - elapsed / duration);
+      ctx.beginPath();
+      ctx.ellipse(0, 0, p.r, p.r / 2, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+
+      p.y += p.d;
+      p.x += Math.sin(p.angle) * 1.5;
+      p.angle += p.tiltSpeed;
+    });
+    if (elapsed < duration) {
+      confettiAnimId = requestAnimationFrame(draw);
+    } else {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+  }
+  confettiAnimId = requestAnimationFrame(draw);
+}
+
+// ─────────────────────────────────────────────
+// KEYBOARD SUPPORT
+// ─────────────────────────────────────────────
+document.addEventListener('keydown', e => {
+  if (document.getElementById('game-screen').classList.contains('active')) {
+    if (e.key >= '0' && e.key <= '9') handleDigit(e.key);
+    if (e.key === 'Backspace') handleDelete();
+    if (e.key === 'Escape') togglePause();
+  }
+});
+</script>
+</body>
+</html>

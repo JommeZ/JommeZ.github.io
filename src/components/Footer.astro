@@ -1,0 +1,45 @@
+---
+const year = new Date().getFullYear();
+---
+
+<footer class="site-footer">
+  <div class="container site-footer__inner">
+    <p>&copy; {year} Jomme</p>
+    <p class="links">
+      <a href="https://github.com/JommeZ" target="_blank" rel="noopener noreferrer">GitHub</a>
+      <a href="mailto:johannes.jonsson87@gmail.com">Email</a>
+    </p>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    border-top: 1px solid var(--border);
+    margin-top: 3rem;
+  }
+
+  .site-footer__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding-block: 1.5rem;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+  }
+
+  .links {
+    display: flex;
+    gap: 1rem;
+  }
+
+  .links a {
+    font-family: var(--font-mono);
+    color: var(--text-muted);
+  }
+
+  .links a:hover {
+    color: var(--accent);
+  }
+</style>

@@ -1,0 +1,38 @@
+---
+interface Props {
+  src: string;
+  title: string;
+  height?: string;
+}
+
+const { src, title, height = '600px' } = Astro.props;
+---
+
+<div class="demo-embed">
+  <iframe src={src} title={title} style={`height:${height}`} loading="lazy"></iframe>
+  <p class="demo-embed__fallback">
+    <a href={src} target="_blank" rel="noopener">Open full screen &rarr;</a>
+  </p>
+</div>
+
+<style>
+  .demo-embed {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .demo-embed iframe {
+    width: 100%;
+    border: 0;
+    display: block;
+  }
+
+  .demo-embed__fallback {
+    margin: 0;
+    padding: 0.5rem 0.75rem;
+    background: var(--bg-alt);
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+  }
+</style>

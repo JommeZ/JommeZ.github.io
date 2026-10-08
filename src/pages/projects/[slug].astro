@@ -1,0 +1,64 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import DemoEmbed from '../../components/DemoEmbed.astro';
+import { projects } from '../../data/projects';
+
+export function getStaticPaths() {
+  return projects.map((project) => ({
+    params: { slug: project.slug },
+    props: { project },
+  }));
+}
+
+const { project } = Astro.props;
+---
+
+<BaseLayout title={project.title} description={project.description}>
+  <a class="back-link" href="/projects/">&larr; All projects</a>
+  <h1>{project.title}</h1>
+  <p>{project.description}</p>
+  <ul class="tags">
+    {project.tags.map((tag) => (
+      <li>{tag}</li>
+    ))}
+  </ul>
+
+  {project.demoUrl && (
+    <>
+      <DemoEmbed src={project.demoUrl} title={project.title} />
+    </>
+  )}
+
+  {project.repoUrl && (
+    <p>
+      <a href={project.repoUrl} target="_blank" rel="noopener noreferrer">View source &rarr;</a>
+    </p>
+  )}
+</BaseLayout>
+
+<style>
+  .back-link {
+    display: inline-block;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+  }
+
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    list-style: none;
+    margin: 0 0 1.5rem;
+    padding: 0;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--text-muted);
+  }
+
+  .tags li {
+    background: var(--bg-alt);
+    border-radius: 4px;
+    padding: 0.15rem 0.4rem;
+  }
+</style>

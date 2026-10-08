@@ -1,0 +1,35 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const links = [
+  { label: 'Email', href: 'mailto:johannes.jonsson87@gmail.com' },
+  { label: 'GitHub', href: 'https://github.com/JommeZ' },
+];
+---
+
+<BaseLayout title="Contact" description="How to reach Jomme.">
+  <h1>Contact</h1>
+  <p>Find me here:</p>
+  <ul class="link-list">
+    {links.map((link) => (
+      <li>
+        <a href={link.href} target={link.href.startsWith('http') ? '_blank' : undefined} rel="noopener noreferrer">
+          {link.label}
+        </a>
+      </li>
+    ))}
+  </ul>
+</BaseLayout>
+
+<style>
+  .link-list {
+    list-style: none;
+    margin: 1rem 0 0;
+    padding: 0;
+    font-family: var(--font-mono);
+  }
+
+  .link-list li {
+    margin-bottom: 0.5rem;
+  }
+</style>

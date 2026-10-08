@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Melodifestivalen Frågesport</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --blue: #003f8a;
+      --blue-light: #1a5db5;
+      --yellow: #ffcc00;
+      --yellow-dark: #e6b800;
+      --green: #2ecc71;
+      --red: #e74c3c;
+      --white: #ffffff;
+      --gray-light: #f0f4ff;
+      --text: #1a1a2e;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #003f8a 0%, #1a1a6e 40%, #4a0080 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      color: var(--text);
+    }
+
+    .card {
+      background: var(--white);
+      border-radius: 20px;
+      width: 100%;
+      max-width: 480px;
+      padding: 28px 24px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 5px;
+      background: linear-gradient(90deg, var(--yellow), var(--yellow-dark), var(--yellow));
+    }
+
+    /* ---- HEADER ---- */
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .mf-badge {
+      background: linear-gradient(135deg, var(--blue), var(--blue-light));
+      color: var(--yellow);
+      font-weight: 800;
+      font-size: 11px;
+      letter-spacing: 0.5px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      text-transform: uppercase;
+      flex-shrink: 0;
+    }
+
+    .progress-bar-wrap {
+      flex: 1;
+      height: 8px;
+      background: #e0e7f5;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, var(--yellow), var(--yellow-dark));
+      border-radius: 4px;
+      transition: width 0.4s ease;
+    }
+
+    .question-counter {
+      font-size: 12px;
+      color: #666;
+      flex-shrink: 0;
+      font-weight: 600;
+    }
+
+    /* ---- SCREENS ---- */
+    .screen { display: none; }
+    .screen.active { display: block; }
+
+    /* ---- START SCREEN ---- */
+    .start-logo {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .stars {
+      font-size: 28px;
+      letter-spacing: 4px;
+      margin-bottom: 8px;
+    }
+
+    h1 {
+      font-size: clamp(22px, 6vw, 30px);
+      font-weight: 900;
+      color: var(--blue);
+      line-height: 1.2;
+      text-align: center;
+    }
+
+    .subtitle {
+      color: #555;
+      font-size: 14px;
+      text-align: center;
+      margin-top: 10px;
+      line-height: 1.5;
+    }
+
+    .name-field {
+      margin: 24px 0 20px;
+    }
+
+    .name-field label {
+      display: block;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--blue);
+      margin-bottom: 8px;
+    }
+
+    .name-field input {
+      width: 100%;
+      padding: 14px 16px;
+      border: 2px solid #d0daf0;
+      border-radius: 12px;
+      font-size: 16px;
+      outline: none;
+      transition: border-color 0.2s;
+      color: var(--text);
+    }
+
+    .name-field input:focus {
+      border-color: var(--blue-light);
+    }
+
+    /* ---- BUTTONS ---- */
+    .btn {
+      display: block;
+      width: 100%;
+      padding: 16px;
+      border: none;
+      border-radius: 14px;
+      font-size: 17px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.1s, box-shadow 0.1s, opacity 0.2s;
+      text-align: center;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .btn:active { transform: scale(0.97); }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--blue), var(--blue-light));
+      color: var(--yellow);
+      box-shadow: 0 4px 16px rgba(0,63,138,0.35);
+    }
+
+    .btn-next {
+      background: linear-gradient(135deg, var(--blue), var(--blue-light));
+      color: var(--white);
+      box-shadow: 0 4px 16px rgba(0,63,138,0.3);
+      margin-top: 20px;
+    }
+
+    .btn-again {
+      background: linear-gradient(135deg, #2c3e50, #3d5a80);
+      color: var(--white);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+      margin-top: 12px;
+    }
+
+    /* ---- ANSWER BUTTONS ---- */
+    .answers {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    .answer-btn {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 16px;
+      border: 2.5px solid #d0daf0;
+      border-radius: 14px;
+      background: var(--gray-light);
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s, transform 0.1s;
+      text-align: left;
+      -webkit-tap-highlight-color: transparent;
+      color: var(--text);
+      width: 100%;
+      min-height: 56px;
+    }
+
+    .answer-btn:active:not(:disabled) { transform: scale(0.98); }
+
+    .answer-btn:not(:disabled):hover {
+      border-color: var(--blue-light);
+      background: #e8eeff;
+    }
+
+    .answer-label {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--blue);
+      color: var(--yellow);
+      font-weight: 800;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+
+    .answer-btn.correct {
+      border-color: var(--green);
+      background: #eafaf1;
+      animation: flashGreen 0.3s ease;
+    }
+
+    .answer-btn.correct .answer-label {
+      background: var(--green);
+      color: white;
+    }
+
+    .answer-btn.wrong {
+      border-color: var(--red);
+      background: #fdf0ee;
+      animation: flashRed 0.3s ease;
+    }
+
+    .answer-btn.wrong .answer-label {
+      background: var(--red);
+      color: white;
+    }
+
+    .answer-btn:disabled { cursor: default; }
+
+    @keyframes flashGreen {
+      0% { background: #a8f0c0; }
+      100% { background: #eafaf1; }
+    }
+
+    @keyframes flashRed {
+      0% { background: #f5b7b1; }
+      100% { background: #fdf0ee; }
+    }
+
+    /* ---- QUESTION SCREEN ---- */
+    .question-text {
+      font-size: clamp(16px, 4.5vw, 20px);
+      font-weight: 700;
+      color: var(--blue);
+      line-height: 1.4;
+      margin-top: 4px;
+    }
+
+    /* ---- FEEDBACK SCREEN ---- */
+    .feedback-icon {
+      text-align: center;
+      font-size: 56px;
+      margin: 8px 0 16px;
+    }
+
+    .feedback-title {
+      font-size: 22px;
+      font-weight: 800;
+      text-align: center;
+      margin-bottom: 10px;
+    }
+
+    .feedback-title.correct { color: var(--green); }
+    .feedback-title.wrong { color: var(--red); }
+
+    .feedback-detail {
+      font-size: 14px;
+      color: #555;
+      text-align: center;
+      line-height: 1.5;
+    }
+
+    .correct-answer-box {
+      background: #eafaf1;
+      border: 2px solid var(--green);
+      border-radius: 12px;
+      padding: 12px 16px;
+      margin: 14px 0;
+      font-size: 15px;
+      color: #1a6b3a;
+      font-weight: 600;
+      text-align: center;
+    }
+
+    /* ---- RESULT SCREEN ---- */
+    .result-trophy {
+      text-align: center;
+      font-size: 64px;
+      margin: 8px 0;
+    }
+
+    .result-name {
+      text-align: center;
+      font-size: 16px;
+      color: #666;
+      margin-bottom: 4px;
+    }
+
+    .result-score {
+      text-align: center;
+      font-size: clamp(36px, 10vw, 52px);
+      font-weight: 900;
+      color: var(--blue);
+      line-height: 1;
+    }
+
+    .result-max {
+      text-align: center;
+      font-size: 16px;
+      color: #888;
+      margin: 4px 0 16px;
+    }
+
+    .result-grade {
+      text-align: center;
+      font-size: clamp(18px, 5vw, 24px);
+      font-weight: 800;
+      color: var(--blue-light);
+      margin-bottom: 20px;
+      padding: 14px;
+      background: var(--gray-light);
+      border-radius: 14px;
+    }
+
+    .result-bar-wrap {
+      height: 12px;
+      background: #e0e7f5;
+      border-radius: 6px;
+      overflow: hidden;
+      margin-bottom: 24px;
+    }
+
+    .result-bar {
+      height: 100%;
+      background: linear-gradient(90deg, var(--yellow), var(--yellow-dark));
+      border-radius: 6px;
+      transition: width 0.8s ease;
+    }
+  </style>
+</head>
+<body>
+
+<div class="card">
+
+  <!-- START SCREEN -->
+  <div class="screen active" id="screen-start">
+    <div class="start-logo">
+      <div class="stars">&#9733; &#9733; &#9733;</div>
+      <h1>Melodifestivalen<br>Frågesport</h1>
+      <p class="subtitle">Testa dina kunskaper om Sveriges mest älskade musiktävling!</p>
+    </div>
+
+    <div class="name-field">
+      <label for="player-name">Ditt namn (valfritt)</label>
+      <input type="text" id="player-name" placeholder="Ange ditt namn..." maxlength="30" autocomplete="off">
+    </div>
+
+    <button class="btn btn-primary" onclick="startQuiz()">Starta quiz &#9654;</button>
+  </div>
+
+  <!-- QUESTION SCREEN -->
+  <div class="screen" id="screen-question">
+    <div class="header">
+      <div class="mf-badge">MF Quiz</div>
+      <div class="progress-bar-wrap">
+        <div class="progress-bar" id="progress-bar"></div>
+      </div>
+      <div class="question-counter" id="question-counter"></div>
+    </div>
+
+    <div class="question-text" id="question-text"></div>
+
+    <div class="answers" id="answers"></div>
+  </div>
+
+  <!-- FEEDBACK SCREEN -->
+  <div class="screen" id="screen-feedback">
+    <div class="header">
+      <div class="mf-badge">MF Quiz</div>
+      <div class="progress-bar-wrap">
+        <div class="progress-bar" id="fb-progress-bar"></div>
+      </div>
+      <div class="question-counter" id="fb-question-counter"></div>
+    </div>
+
+    <div class="feedback-icon" id="feedback-icon"></div>
+    <div class="feedback-title" id="feedback-title"></div>
+    <div class="correct-answer-box" id="correct-answer-box" style="display:none"></div>
+    <div class="feedback-detail" id="feedback-detail"></div>
+
+    <button class="btn btn-next" id="btn-next" onclick="nextQuestion()">Nästa fråga &#8594;</button>
+  </div>
+
+  <!-- RESULT SCREEN -->
+  <div class="screen" id="screen-result">
+    <div class="result-trophy" id="result-trophy"></div>
+    <div class="result-name" id="result-name"></div>
+    <div class="result-score" id="result-score"></div>
+    <div class="result-max">av 15 rätt</div>
+    <div class="result-bar-wrap">
+      <div class="result-bar" id="result-bar" style="width:0%"></div>
+    </div>
+    <div class="result-grade" id="result-grade"></div>
+    <button class="btn btn-primary" onclick="restartQuiz()">Spela igen &#8635;</button>
+    <button class="btn btn-again" onclick="showStart()">Ny spelare</button>
+  </div>
+
+</div>
+
+<script>
+  const QUESTIONS = [
+    {
+      q: "Vilket år hölls den första Melodifestivalen?",
+      options: ["1952", "1959", "1965", "1970"],
+      correct: 1
+    },
+    {
+      q: "Vilket band vann Melodifestivalen 1974 och sedan Eurovision Song Contest?",
+      options: ["Roxette", "Ace of Base", "ABBA", "Europe"],
+      correct: 2
+    },
+    {
+      q: "Vilken låt vann ABBA Eurovision Song Contest 1974?",
+      options: ["Dancing Queen", "Fernando", "Waterloo", "Mamma Mia"],
+      correct: 2
+    },
+    {
+      q: "Hur många gånger har Sverige vunnit Eurovision Song Contest (t.o.m. 2023)?",
+      options: ["5 gånger", "6 gånger", "7 gånger", "8 gånger"],
+      correct: 2
+    },
+    {
+      q: "Carola vann Melodifestivalen 1991. Vad hette låten?",
+      options: ["Fångad av en stormvind", "Evighet", "Mitt i ett äventyr", "Det händer mig igen"],
+      correct: 0
+    },
+    {
+      q: "Vilken kanal sänder Melodifestivalen?",
+      options: ["TV4", "SVT", "TV3", "Kanal 5"],
+      correct: 1
+    },
+    {
+      q: "Hur många deltävlingar (heats) ingår normalt i Melodifestivalen?",
+      options: ["2 st", "3 st", "4 st", "6 st"],
+      correct: 2
+    },
+    {
+      q: "Vad heter den omgång i Melodifestivalen där förlorare från deltävlingarna får en ny chans?",
+      options: ["Andra chansen", "Sista chansen", "Comeback-rundan", "Wildcardrundan"],
+      correct: 0
+    },
+    {
+      q: "Loreen vann Eurovision Song Contest 2012 med vilken låt?",
+      options: ["Heroes", "Tattoo", "Euphoria", "La Voix"],
+      correct: 2
+    },
+    {
+      q: "Måns Zelmerlöw vann Eurovision Song Contest 2015 med vilken låt?",
+      options: ["Waterloo", "Heroes", "Euphoria", "Take Me to Your Heaven"],
+      correct: 1
+    },
+    {
+      q: "Loreen är den enda artisten som vunnit Eurovision två gånger. Vilken låt vann 2023?",
+      options: ["Tattoo", "Euphoria", "Heroes", "Waterloo"],
+      correct: 0
+    },
+    {
+      q: "Charlotte Nilsson (Perrelli) vann Eurovision för Sverige 1999. Vad hette låten?",
+      options: ["Love Isn't Easy", "Take Me to Your Heaven", "Angel Eyes", "Hold Me Now"],
+      correct: 1
+    },
+    {
+      q: "I vilken stad hålls Melodifestivalens final oftast?",
+      options: ["Göteborg", "Malmö", "Uppsala", "Stockholm"],
+      correct: 3
+    },
+    {
+      q: "Vilken artist representerade Sverige i Eurovision 1997 med låten \"Mysterious\"?",
+      options: ["Carola", "Charlotte Nilsson", "Robyn", "Darin"],
+      correct: 2
+    },
+    {
+      q: "Herreys vann Eurovision Song Contest 1984 med vilken låt?",
+      options: ["Diggiloo Diggiley", "La La La", "Boom Boom", "Happy Happy"],
+      correct: 0
+    }
+  ];
+
+  const LABELS = ["A", "B", "C", "D"];
+  const GRADES = [
+    { min: 15, trophy: "🏆", grade: "Melodimästare! Du är en levande legend!" },
+    { min: 12, trophy: "🥇", grade: "Fantastiskt! Du kan allt om Melodifestivalen!" },
+    { min: 9,  trophy: "🥈", grade: "Bra jobbat! Du klarar dig mer än bra!" },
+    { min: 6,  trophy: "🥉", grade: "Godkänt! Men det finns mer att lära sig." },
+    { min: 3,  trophy: "🎵", grade: "Inte illa för en nybörjare!" },
+    { min: 0,  trophy: "🎤", grade: "Dags att kolla upp Melodifestivalen lite mer!" }
+  ];
+
+  let currentQ = 0;
+  let score = 0;
+  let playerName = "";
+
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+  }
+
+  function startQuiz() {
+    playerName = document.getElementById('player-name').value.trim();
+    currentQ = 0;
+    score = 0;
+    showQuestion();
+  }
+
+  function restartQuiz() {
+    currentQ = 0;
+    score = 0;
+    showQuestion();
+  }
+
+  function showStart() {
+    document.getElementById('player-name').value = '';
+    showScreen('screen-start');
+  }
+
+  function updateProgress(screenPrefix) {
+    const pct = ((currentQ) / QUESTIONS.length) * 100;
+    const bar = document.getElementById(screenPrefix + 'progress-bar');
+    const counter = document.getElementById(screenPrefix + 'question-counter');
+    if (bar) bar.style.width = pct + '%';
+    if (counter) counter.textContent = (currentQ + 1) + ' / ' + QUESTIONS.length;
+  }
+
+  function showQuestion() {
+    updateProgress('');
+    const q = QUESTIONS[currentQ];
+    document.getElementById('question-text').textContent = q.q;
+
+    const answersEl = document.getElementById('answers');
+    answersEl.innerHTML = '';
+
+    q.options.forEach((opt, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'answer-btn';
+      btn.innerHTML = `<span class="answer-label">${LABELS[i]}</span><span>${opt}</span>`;
+      btn.addEventListener('click', () => selectAnswer(i));
+      answersEl.appendChild(btn);
+    });
+
+    showScreen('screen-question');
+  }
+
+  function selectAnswer(index) {
+    const q = QUESTIONS[currentQ];
+    const buttons = document.querySelectorAll('.answer-btn');
+
+    buttons.forEach(btn => { btn.disabled = true; });
+
+    const isCorrect = index === q.correct;
+    if (isCorrect) score++;
+
+    buttons[index].classList.add(isCorrect ? 'correct' : 'wrong');
+    if (!isCorrect) {
+      buttons[q.correct].classList.add('correct');
+    }
+
+    setTimeout(() => showFeedback(isCorrect, q), 600);
+  }
+
+  function showFeedback(isCorrect, q) {
+    const pct = ((currentQ + 1) / QUESTIONS.length) * 100;
+    document.getElementById('fb-progress-bar').style.width = pct + '%';
+    document.getElementById('fb-question-counter').textContent = (currentQ + 1) + ' / ' + QUESTIONS.length;
+
+    document.getElementById('feedback-icon').textContent = isCorrect ? '✅' : '❌';
+
+    const titleEl = document.getElementById('feedback-title');
+    titleEl.textContent = isCorrect ? 'Rätt svar!' : 'Fel svar!';
+    titleEl.className = 'feedback-title ' + (isCorrect ? 'correct' : 'wrong');
+
+    const correctBox = document.getElementById('correct-answer-box');
+    if (!isCorrect) {
+      correctBox.style.display = 'block';
+      correctBox.textContent = 'Rätt svar: ' + q.options[q.correct];
+    } else {
+      correctBox.style.display = 'none';
+    }
+
+    document.getElementById('feedback-detail').textContent = isCorrect
+      ? 'Bra jobbat! Fortsätt så!'
+      : 'Ingen fara – nästa fråga kanske går bättre!';
+
+    const isLast = currentQ === QUESTIONS.length - 1;
+    document.getElementById('btn-next').textContent = isLast ? 'Se resultatet ✓' : 'Nästa fråga →';
+
+    showScreen('screen-feedback');
+  }
+
+  function nextQuestion() {
+    currentQ++;
+    if (currentQ >= QUESTIONS.length) {
+      showResult();
+    } else {
+      showQuestion();
+    }
+  }
+
+  function showResult() {
+    const trophy = GRADES.find(g => score >= g.min);
+
+    document.getElementById('result-trophy').textContent = trophy.trophy;
+    document.getElementById('result-name').textContent = playerName ? playerName + ':' : 'Ditt resultat:';
+    document.getElementById('result-score').textContent = score;
+    document.getElementById('result-grade').textContent = trophy.grade;
+
+    const pct = (score / QUESTIONS.length) * 100;
+    const bar = document.getElementById('result-bar');
+    bar.style.width = '0%';
+    setTimeout(() => { bar.style.width = pct + '%'; }, 100);
+
+    showScreen('screen-result');
+  }
+
+  // Allow Enter key on name field
+  document.getElementById('player-name').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') startQuiz();
+  });
+</script>
+
+</body>
+</html>

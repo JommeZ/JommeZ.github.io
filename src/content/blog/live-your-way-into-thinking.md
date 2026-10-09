@@ -1,14 +1,26 @@
 ---
-title: "Live Your Way Into Thinking"
-date: 2026-10-08
-description: "A reflection on why action comes before mindset, how mastery beats ego, and how confidence is built through small, repeatable wins."
+Title: "Live Your Way Into Thinking"
+Date: 2026-10-08
+Description: "A reflection on why action comes before mindset, how mastery beats ego, and how confidence is built through small, repeatable wins."
 ---
+I listened to a podcast from The Knowledge Project the name was "The Mindset That Unlocks Your Full Potential". 
 
-A lot of people wait to feel ready before they begin. They tell themselves they need more confidence, more clarity, or a better mindset before they can take the next step.
+## The key lessons from the podcast can be summarized in below points:
+- do not wait to feel ready
+- do not make your mindset the prerequisite for action
+- build competence through repetition
+- detach from ego and focus on the process
+- make presence a daily practice
+- let evidence, not emotion, build your confidence**
 
-But the real pattern is almost always the opposite: the action creates the mindset.
+It was such a great listen and something I have thought about quite a lot during periods. I have several times waited to do something until I felt ready which just make time pass and you don't really get anywhere. Then instead of actual doing the thing you start reading about it or maybe, watch a Youtube clip on the topic. With all information available to day and the number of topics being presented for me during a day there just isn't a way where that can actually create any meaningful learning or change. 
 
-This is the core idea behind the phrase, "we don't think our way into a pattern of living, we live our way into a pattern of thought."
+What is highlighted in the podcast and which I believe is true for so many areas is that "action creates your mindset" or as the famous quote they mention in the podcast:
+
+__"we don't think our way into a pattern of living, we live our way into a pattern of thought."__
+
+With all above being said is maybe the question that still stands out, how to chose what to focus on. Once you have that covered, just start doing, focused, on a daily basis and this will build lasting habit and great results in any area you chose.
+
 
 In other words, change does not begin in the mind as a perfectly formed conviction. It begins in behavior. It begins in the small, repeated decisions to act before you feel ready.
 
@@ -86,27 +98,3 @@ The person you are today is not the ceiling of who you can become. Growth is oft
 
 This is why self-development is not about becoming someone else. It is about becoming more fully yourself.
 
-## 7. The practical takeaway
-
-The conversation’s main lesson is simple but profound:
-
-- do not wait to feel ready
-- do not make your mindset the prerequisite for action
-- build competence through repetition
-- detach from ego and focus on the process
-- make presence a daily practice
-- let evidence, not emotion, build your confidence
-
-You do not become excellent by demanding a perfect internal state. You become excellent by living the behaviors that produce a better state.
-
-The transformation begins not when you feel ready, but when you start acting as if the future version of you is already being built.
-
-And that is how you live your way into thinking.
-
----
-
-This is not about grand heroics. It is about small, deliberate acts that eventually reshape your mind.
-
-The next step is rarely dramatic. It is often just the decision to do the thing before you feel ready.
-
-And that decision, repeated, is where change begins.

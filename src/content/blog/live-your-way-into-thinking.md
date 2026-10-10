@@ -1,7 +1,7 @@
 ---
-Title: "Live Your Way Into Thinking"
-Date: 2026-10-08
-Description: "A reflection on why action comes before mindset, how mastery beats ego, and how confidence is built through small, repeatable wins."
+title: "Live Your Way Into Thinking"
+date: 2026-10-08
+description: "A reflection on why action comes before mindset, how mastery beats ego, and how confidence is built through small, repeatable wins."
 ---
 I listened to a podcast from The Knowledge Project the name was "The Mindset That Unlocks Your Full Potential". 
 

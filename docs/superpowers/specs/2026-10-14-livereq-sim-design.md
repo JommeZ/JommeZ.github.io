@@ -90,10 +90,11 @@ It can end early in one of these terminal states:
 - `ghosted`: no status by the deadline (status quo: never gets a status).
 - `withdrawn`: the seeker was hired elsewhere.
 
-Reason codes come from Greenhouse's defaults:
-- Company-initiated: `lacks_skills`, `preferred_another`, `not_a_fit`,
-  `duplicate`, `spam`.
-- Candidate-initiated: `withdrew`.
+Reason codes come from Greenhouse's defaults. The sim uses only the ones its
+agents can produce:
+- Company-initiated: `not_a_fit` (failed triage), `lacks_skills` (failed the
+  full read, or a rubber-stamp), `preferred_another` (openings already filled).
+- Candidate-initiated: `withdrew` (hired elsewhere).
 
 The LiveReq deadline `D` applies **only to the first decision**: advance or
 decline. What happens after an interview is not bonded.
@@ -118,6 +119,11 @@ Employer types (shares adjustable, must sum to 100%):
   - ghosting: `B / C` under LiveReq, 0 in the status quo;
   - rubber-stamping: expected cost is `a × B`, the audit probability times losing the whole bond, plus a small triage cost.
 - **Ghost**: posts but never hires. Gives no responses unless forced by cost; under LiveReq it behaves as Rational about the bond but has 0 openings.
+
+Each employer is a **slot** that posts a new role every 28 days. A posting that
+fills early stays closed until its 28-day cycle ends; this keeps hiring
+capacity bounded. (Found during prototyping: reopening immediately made hiring
+unlimited.)
 
 Each day an employer spends its capacity on triage first (oldest first), then
 on full reads. A full read reveals the seeker's true fit. The employer advances
@@ -160,7 +166,8 @@ A seeker who gets hired stops applying, and their pending applications become
 - **Audit** (toggle, rate `a`): each decline is audited with probability `a`.
   An audit that finds a stamped decline forfeits the employer's remaining bond.
   The forfeit is shared among that posting's stamped applicants.
-- **Payout cap** (toggle): a seeker can collect at most `k` payouts per week.
+- **Payout cap** (toggle): a seeker can collect at most `k` payouts per week
+  (default 1).
 - **Visible history** (toggle): Indeed-style badge for a response rate over 51%
   across the rolling last 30 days, recalculated weekly. It affects which postings
   seekers choose. It has no direct financial effect.
@@ -181,18 +188,27 @@ Money must add up: total bond paid in = payouts + refunds + forfeits.
 
 Calibration ranges for the "Today's job market" preset (status quo):
 - applications per hire: 200–400;
-- share of seekers ghosted at least once: 40–65%. The real figure (~53%) is
-  measured over a year; the sim covers 12 weeks, so this range is deliberately loose;
+- share of seekers ghosted at least once: 40–80%. The real figure (~53%) is
+  measured over a year and the sim's seekers send far more applications per
+  person, so the prototype lands near 72%; the range is deliberately loose;
 - interview rate: roughly between 2.5% and 9.5% depending on volume.
 
 ### 4.7 Presets
 
-| Preset | Purpose |
-|---|---|
-| Today's job market | Status quo calibrated to section 4.6 |
-| LiveReq basic | Bond plus tokens; no farmers; no countermeasures |
-| Farmers attack | LiveReq basic with 20% farmers and Rational employers |
-| Audits on | Farmers attack, with audits, payout cap and visible history on |
+Prototyping showed that without audits, rubber-stamping (about $1) is always
+cheaper than ghosting (`B / C`, $20 by default), so a bond alone turns ghosting
+into rubber-stamping and farmers earn nothing. Farming only pays when audits
+make stamping expensive **and** the bond is too small: `B / C` below the cost of
+a review (about $13 by default, so `B` below about $1,333 when `C` is 100). The
+presets tell that story in order:
+
+| Preset | Settings | What it shows |
+|---|---|---|
+| Today's job market | Status quo, defaults | Calibrated to section 4.6 |
+| LiveReq basic | Bond plus tokens; side-by-side | Ghosting disappears, but about a third of declines become rubber-stamps |
+| Audits on | Audits on | Rubber-stamping disappears; employers review |
+| Farmers attack (cheap bond) | Audits on, `B` = 1000, 20% farmers, 10% diligent | Ghosting returns because `B / C` is below the review cost, and farmers collect about a third of the payouts |
+| Countermeasures | Farmers attack plus payout cap and badge | Farmer payouts fall; the real fix is a bond above the review cost |
 
 ## 5. Page and UI
 
@@ -220,7 +236,10 @@ Calibration ranges for the "Today's job market" preset (status quo):
   Sources footer
 ```
 
-- Dot colors: advanced, declined, stamped, ghosted, payout collected. The colors work in both light and dark themes.
+- Each employer column shows 20 dots split in proportion to its current posting's
+  outcomes (a 12-week run produces tens of thousands of applications, too many
+  to draw one dot each). Hovering a column lists exact counts and reason codes.
+- Dot colors: advanced, declined, stamped, ghosted, payout collected, waiting. The colors work in both light and dark themes.
 - Changing any setting reruns the whole simulation from day 0. Playback then
   steps through the stored snapshots.
 - The settings and seed are stored in the URL hash, so the same URL gives the same run.
@@ -234,6 +253,7 @@ src/livereq/engine/          pure TypeScript, no DOM code
   rng.ts        seeded PRNG (mulberry32), forkable streams
   types.ts      Params, Seeker, Posting, Application, ReasonCode, Snapshot
   params.ts     defaults, presets, clamping, hash encode/decode
+  state.ts      initial population, new seekers and postings, volume/effort curves
   seekers.ts    application choice, effort curve, farmer targeting
   employers.ts  triage / full read / ghost / stamp decisions
   market.ts     step(state, params, rng) → state
@@ -260,14 +280,17 @@ the engine, and the engine never depends on the UI.
 4. Applications past the deadline are marked ghosted and receive payouts.
 5. Audits run.
 6. Hires happen; pending applications of hired seekers are withdrawn.
-7. Every 7 days, badges are recalculated.
-8. A snapshot is recorded.
+7. Postings past their 28-day cycle close and a new one opens in the slot;
+   closed postings with no pending applicants retire and refund their bond.
+8. Every 7 days, badges are recalculated.
+9. A snapshot is recorded.
 
 ### Data flow
 
 Params and seed go to `runSimulation`, which produces `Snapshot[]` for all 84 days.
-The UI only reads snapshots. Side-by-side runs the simulation twice. Target: one run
-should take under 100 ms on a laptop. If it is slower, move it to a Web Worker
+The UI only reads snapshots. Side-by-side runs the simulation twice. The
+prototype takes about 100–250 ms for a side-by-side pair; the test suite
+enforces under 1 second. If the page feels laggy, move it to a Web Worker
 (deferred).
 
 ## 7. Error handling

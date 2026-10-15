@@ -30,4 +30,11 @@ export const projects: Project[] = [
     tags: ['quiz', 'javascript', 'svenska'],
     demoUrl: '/demos/melodifestivalen-quiz/',
   },
+  {
+    slug: 'livereq',
+    title: 'LiveReq',
+    description: 'An agent-based simulation of a job board where employers post a response bond, with seeker tokens, gaming and countermeasures.',
+    tags: ['simulation', 'typescript', 'mechanism-design'],
+    demoUrl: '/demos/livereq/',
+  },
 ];

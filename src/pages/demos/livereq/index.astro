@@ -1,0 +1,146 @@
+---
+import DemoLayout from '../../../layouts/DemoLayout.astro';
+import { OUTCOMES } from '../../../livereq/ui/marketView';
+---
+
+<DemoLayout title="LiveReq sim" description="Agent-based simulation of a job board where employers post a response bond.">
+  <div class="lr">
+    <header class="lr-bar">
+      <h1>LiveReq sim</h1>
+      <div class="lr-views" role="group" aria-label="Mode">
+        <button type="button" data-view="statusQuo">Status quo</button>
+        <button type="button" data-view="liveReq">LiveReq</button>
+        <button type="button" data-view="sideBySide">Side-by-side</button>
+      </div>
+      <div class="lr-playback">
+        <button type="button" id="lr-play">▶ Play</button>
+        <button type="button" id="lr-step">⏭ Step</button>
+        <button type="button" id="lr-reset">↺ Reset</button>
+        <button type="button" id="lr-end">⇥ End</button>
+        <label>Speed <input id="lr-speed" type="range" min="1" max="30" value="8" /></label>
+        <label>Seed <input id="lr-seed" type="number" min="0" step="1" /></label>
+        <label>Preset <select id="lr-preset"></select></label>
+      </div>
+    </header>
+
+    <p id="lr-notice" class="lr-notice" hidden>
+      That link's settings couldn't be read, so the defaults are shown.
+      <button type="button" id="lr-notice-close" aria-label="Dismiss">×</button>
+    </p>
+
+    <div class="lr-main">
+      <details id="lr-controls" class="lr-controls" open>
+        <summary>Settings</summary>
+        <form id="lr-form" onsubmit="return false"></form>
+      </details>
+
+      <section class="lr-output">
+        <div class="lr-market-head">
+          <h2>Market</h2>
+          <span id="lr-day" class="lr-day"></span>
+        </div>
+        <div class="lr-market-scroll">
+          <svg id="lr-market" class="lr-market" role="img" aria-label="Employers and their applicants by outcome"></svg>
+        </div>
+        <ul class="lr-legend">
+          {OUTCOMES.map((o) => <li><span class={`swatch dot--${o.id}`}></span>{o.label}</li>)}
+          <li>D/R/G = diligent / rational / ghost-job employer · ★ = responsive badge</li>
+        </ul>
+        <p class="lr-hint">In side-by-side mode the market shows LiveReq; the charts draw the status quo dashed.</p>
+        <div id="lr-charts" class="lr-charts"></div>
+      </section>
+    </div>
+
+    <footer class="lr-sources">
+      Calibration sources:
+      <a href="https://huntr.co/research/job-search-trends-q1-2026" target="_blank" rel="noopener">Huntr Q1 2026</a> ·
+      <a href="https://www.bu.edu/com/files/2018/10/TheLadders-EyeTracking-StudyC2.pdf" target="_blank" rel="noopener">TheLadders eye-tracking</a> ·
+      <a href="https://help.workable.com/hc/en-us/articles/16965390312215-What-is-a-Responsive-Employer-Badge-on-Indeed" target="_blank" rel="noopener">Indeed responsive badge</a> ·
+      <a href="https://support.greenhouse.io/hc/en-us/articles/360000769051" target="_blank" rel="noopener">Greenhouse rejection reasons</a> ·
+      <a href="https://docs.ashbyhq.com/application-limits" target="_blank" rel="noopener">Ashby application limits</a> ·
+      <a href="https://fortune.com/2025/02/02/linkedin-indeed-greenhouse-job-seekers-likely-response-interviews/" target="_blank" rel="noopener">Fortune on response signals</a>.
+      Numbers are mostly vendor- or self-reported; treat them as rough targets.
+    </footer>
+  </div>
+</DemoLayout>
+
+<script>
+  import { start } from '../../../livereq/ui/app';
+  start();
+</script>
+
+<style is:global>
+  .lr {
+    --c-advanced: #2f9e44;
+    --c-declined: #868e96;
+    --c-stamped: #e8590c;
+    --c-ghosted: #c92a2a;
+    --c-paid: #9c36b5;
+    --c-pending: #ced4da;
+    padding: 0.75rem 1rem 1.5rem;
+    font-size: 0.9rem;
+  }
+  @media (prefers-color-scheme: dark) {
+    .lr {
+      --c-advanced: #51cf66;
+      --c-declined: #adb5bd;
+      --c-stamped: #ff922b;
+      --c-ghosted: #ff6b6b;
+      --c-paid: #da77f2;
+      --c-pending: #495057;
+    }
+  }
+  .lr h1 { font-size: 1.15rem; margin: 0; }
+  .lr h2 { font-size: 1rem; margin: 0; }
+  .lr button, .lr select, .lr input[type='number'] {
+    font: inherit; color: var(--text); background: var(--bg-alt);
+    border: 1px solid var(--border); border-radius: 6px; padding: 0.2rem 0.55rem;
+  }
+  .lr input[type='number'] { width: 5.5rem; }
+  .lr button[aria-pressed='true'] { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .lr-bar { display: flex; flex-wrap: wrap; gap: 0.5rem 1rem; align-items: center; margin-bottom: 0.75rem; }
+  .lr-views, .lr-playback { display: flex; flex-wrap: wrap; gap: 0.35rem; align-items: center; }
+  .lr-playback label { display: inline-flex; gap: 0.35rem; align-items: center; color: var(--text-muted); }
+  .lr-notice { display: flex; gap: 0.5rem; align-items: center; background: var(--bg-alt); border: 1px solid var(--border); border-radius: 6px; padding: 0.4rem 0.6rem; }
+  .lr-main { display: grid; grid-template-columns: 16rem 1fr; gap: 1rem; }
+  .lr-controls summary { cursor: pointer; font-weight: 600; }
+  .lr-controls fieldset { border: 1px solid var(--border); border-radius: 6px; margin: 0.5rem 0 0; padding: 0.35rem 0.6rem 0.5rem; }
+  .lr-controls legend { color: var(--text-muted); font-size: 0.8rem; padding: 0 0.25rem; }
+  .control { display: grid; grid-template-columns: 1fr auto; gap: 0 0.5rem; margin: 0.3rem 0; }
+  .control input[type='range'] { grid-column: 1 / -1; width: 100%; }
+  .control output { font-family: var(--font-mono); font-size: 0.8rem; }
+  .control--checkbox { display: flex; gap: 0.4rem; align-items: center; }
+  .lr-market-head { display: flex; justify-content: space-between; align-items: baseline; }
+  .lr-day { font-family: var(--font-mono); color: var(--text-muted); }
+  .lr-market-scroll { overflow-x: auto; }
+  .lr-market { display: block; min-width: 100%; height: 13rem; }
+  .lr-market .hit { fill: transparent; }
+  .lr-market .posting:hover .hit { fill: var(--bg-alt); }
+  .lr-market .posting--closed { opacity: 0.55; }
+  .lr-market .type { font: 600 10px var(--font-mono); fill: var(--text-muted); }
+  .lr-market .badge { font-size: 10px; fill: var(--accent); }
+  .dot--advanced { fill: var(--c-advanced); background: var(--c-advanced); }
+  .dot--declined { fill: var(--c-declined); background: var(--c-declined); }
+  .dot--stamped { fill: var(--c-stamped); background: var(--c-stamped); }
+  .dot--ghosted { fill: var(--c-ghosted); background: var(--c-ghosted); }
+  .dot--paid { fill: var(--c-paid); background: var(--c-paid); }
+  .dot--pending { fill: var(--c-pending); background: var(--c-pending); }
+  .lr-legend { display: flex; flex-wrap: wrap; gap: 0.25rem 0.9rem; list-style: none; padding: 0; margin: 0.4rem 0; color: var(--text-muted); font-size: 0.8rem; }
+  .lr-legend .swatch { display: inline-block; width: 0.6rem; height: 0.6rem; border-radius: 50%; margin-right: 0.3rem; }
+  .lr-hint { color: var(--text-muted); font-size: 0.8rem; margin: 0 0 0.5rem; }
+  .lr-charts { display: grid; grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr)); gap: 0.75rem; }
+  .chart { margin: 0; border: 1px solid var(--border); border-radius: 6px; padding: 0.4rem 0.5rem; }
+  .chart figcaption { display: flex; justify-content: space-between; gap: 0.5rem; font-size: 0.8rem; color: var(--text-muted); }
+  .chart figcaption strong { color: var(--text); font-family: var(--font-mono); font-weight: 600; }
+  .chart .baseline-value { color: var(--text-muted); font-weight: 400; }
+  .chart svg { width: 100%; height: auto; display: block; }
+  .chart .axis { stroke: var(--border); }
+  .chart .series { stroke: var(--accent); stroke-width: 2; }
+  .chart .series--baseline { stroke: var(--text-muted); stroke-dasharray: 4 3; stroke-width: 1.5; }
+  .chart .ref { stroke: var(--text-muted); stroke-width: 0.75; stroke-dasharray: 1 2; }
+  .chart .ref-label { font-size: 8px; fill: var(--text-muted); }
+  .lr-sources { margin-top: 1.25rem; color: var(--text-muted); font-size: 0.8rem; }
+  @media (max-width: 720px) {
+    .lr-main { grid-template-columns: 1fr; }
+  }
+</style>

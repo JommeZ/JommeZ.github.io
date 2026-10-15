@@ -42,7 +42,7 @@ export interface ControlsHandle {
   set(params: Params): void;
 }
 
-/** Build the settings form. `onChange` gets clamped params on every input. */
+/** Build the settings form. `onChange` gets clamped params when a value is committed. */
 export function renderControls(root: HTMLElement, onChange: (params: Params) => void): ControlsHandle {
   let current: Params = clampParams({});
   const inputs = new Map<keyof Params, { input: HTMLInputElement; output?: HTMLOutputElement; def: ControlDef }>();
@@ -76,10 +76,15 @@ export function renderControls(root: HTMLElement, onChange: (params: Params) => 
     } else {
       label.append(input, text);
     }
-    input.addEventListener('input', () => {
+    // Update the label while dragging; rerun the simulation only when the value is committed.
+    const read = () => {
       const raw = def.kind === 'checkbox' ? input.checked : Number(input.value);
       current = clampParams({ ...current, [def.key]: raw });
       sync();
+    };
+    input.addEventListener('input', read);
+    input.addEventListener('change', () => {
+      read();
       onChange(current);
     });
     fieldset.append(label);

@@ -20,6 +20,13 @@ describe('clampParams', () => {
     expect(p.deadline).toBe(DEFAULT_PARAMS.deadline);
   });
 
+  it('caps the hidden scale settings so a hand-edited link cannot freeze the page', () => {
+    const p = clampParams({ seekers: 5000, postings: 500, days: 400 });
+    expect(p.seekers).toBe(1000);
+    expect(p.postings).toBe(100);
+    expect(p.days).toBe(126);
+  });
+
   it('scales employer shares down when they sum to more than 1', () => {
     const p = clampParams({ diligentShare: 0.9, ghostShare: 0.6 });
     expect(p.diligentShare + p.ghostShare).toBeCloseTo(1);

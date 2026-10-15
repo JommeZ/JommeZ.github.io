@@ -63,8 +63,12 @@ function auditPhase(state: SimState, declines: Application[]): void {
     if (!rng.chance(params.auditRate)) continue;
     const posting = postingById(state, app.postingId);
     if (app.state === 'stamped' && app.fit >= posting.bar && posting.bondRemaining > 0) {
-      counters.forfeits += posting.bondRemaining;
+      const amount = posting.bondRemaining;
+      counters.forfeits += amount;
       posting.bondRemaining = 0;
+      // The forfeit is shared among everyone this posting rubber-stamped so far.
+      const stamped = state.applications.filter((a) => a.postingId === posting.id && a.state === 'stamped');
+      for (const victim of stamped) victim.payout += amount / stamped.length;
     }
   }
 }

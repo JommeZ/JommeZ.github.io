@@ -41,9 +41,10 @@ type BooleanKey = { [K in keyof Params]: Params[K] extends boolean ? K : never }
 
 /** [min, max, integer] */
 export const RANGES: Record<NumericKey, [number, number, boolean]> = {
-  days: [7, 182, true],
-  seekers: [50, 2000, true],
-  postings: [5, 200, true],
+  // Not exposed as sliders; capped so a hand-edited link can't freeze the page.
+  days: [7, 126, true],
+  seekers: [50, 1000, true],
+  postings: [5, 100, true],
   bond: [0, 20000, false],
   cap: [10, 500, true],
   deadline: [1, 30, true],

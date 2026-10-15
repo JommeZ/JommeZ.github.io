@@ -64,7 +64,7 @@ describe('invariants', () => {
   it('never pays a seeker more than the payout cap in a week', () => {
     const params = preset('countermeasures');
     const { state } = simulate(params, 1, 'liveReq');
-    const paid = state.applications.filter((a) => a.payout > 0);
+    const paid = state.applications.filter((a) => a.state === 'ghosted' && a.payout > 0);
     expect(paid.length).toBeGreaterThan(0);
     const perSeekerWeek = new Map<string, number>();
     for (const app of paid) {
@@ -87,6 +87,18 @@ describe('edge settings', () => {
         expect(Number.isFinite(v)).toBe(true);
       }
     }
+  });
+});
+
+describe('audit forfeits', () => {
+  it('shares a forfeited bond among the posting\'s stamped applicants', () => {
+    // A tiny audit rate keeps stamping cheaper than reviewing, so stamps happen and some get caught.
+    const { state } = simulate(clampParams({ audits: true, auditRate: 0.005 }), 1, 'liveReq');
+    expect(state.counters.forfeits).toBeGreaterThan(0);
+    const received = state.applications
+      .filter((a) => a.state === 'stamped')
+      .reduce((sum, a) => sum + a.payout, 0);
+    expect(received).toBeCloseTo(state.counters.forfeits, 6);
   });
 });
 
